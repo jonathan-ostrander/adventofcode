@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day03 extends Day(3) {
+object Day03 extends Day(3, 2021) {
   def bit(values: List[String], pos: Int, mostCommon: Boolean): Char = {
     val (zeroes, ones) = values.map(_(pos)).foldLeft((0, 0)) {
       case ((z, o), '0') => (z + 1, o)

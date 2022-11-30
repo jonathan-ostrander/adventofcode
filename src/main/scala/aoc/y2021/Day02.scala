@@ -1,11 +1,17 @@
 package aoc
+package y2021
 
-object Day02 extends Day(2) {
+object Day02 extends Day(2, 2021) {
   case class Submarine(horizontal: Int, depth: Int, aim: Int) {
     def applyCommand(command: Command, correct: Boolean) =
       command.direction match {
         case Command.Forward =>
-          if (correct) Submarine(horizontal + command.value, depth + (aim * command.value), aim)
+          if (correct)
+            Submarine(
+              horizontal + command.value,
+              depth + (aim * command.value),
+              aim
+            )
           else Submarine(horizontal + command.value, depth, aim)
         case Command.Depth =>
           if (correct) Submarine(horizontal, depth, aim + command.value)
@@ -24,16 +30,17 @@ object Day02 extends Day(2) {
       val (d :: v :: Nil) = value.split(" ").take(2).toList
       d match {
         case "forward" => Command(Forward, v.toInt)
-        case "up" => Command(Depth, v.toInt * -1)
-        case "down" => Command(Depth, v.toInt)
+        case "up"      => Command(Depth, v.toInt * -1)
+        case "down"    => Command(Depth, v.toInt)
       }
     }
   }
 
   def solve(correct: Boolean) = {
-    val finalSub = input.map(line => Command.parse(line)).foldLeft(Submarine(0, 0, 0)) {
-      case (sub, command) => sub.applyCommand(command, correct)
-    }
+    val finalSub =
+      input.map(line => Command.parse(line)).foldLeft(Submarine(0, 0, 0)) {
+        case (sub, command) => sub.applyCommand(command, correct)
+      }
     (finalSub.depth * finalSub.horizontal).toString()
   }
   override def partOne(): String = solve(false)

@@ -1,8 +1,9 @@
 package aoc
+package y2021
 
 import scala.collection.mutable
 
-object Day23 extends Day(23) {
+object Day23 extends Day(23, 2021) {
   abstract class Amphipod(val room: Int) {
     val moveCost = Math.pow(10, room).toInt
   }
@@ -14,16 +15,22 @@ object Day23 extends Day(23) {
   val initialHallway = IndexedSeq(None, None, None, None, None, None, None)
 
   val initialRooms =
-    input.drop(2).dropRight(1).map(_.split("#").filter(_.length == 1).filterNot(_.isEmpty)).transpose
-      .map(_.collect { case "A" => A; case "B" => B; case "C" => C; case "D" => D })
-      .zipWithIndex.map { case (l, i) => Room(i, l, l.length) }
+    input
+      .drop(2)
+      .dropRight(1)
+      .map(_.split("#").filter(_.length == 1).filterNot(_.isEmpty))
+      .transpose
+      .map(_.collect {
+        case "A" => A; case "B" => B; case "C" => C; case "D" => D
+      })
+      .zipWithIndex
+      .map { case (l, i) => Room(i, l, l.length) }
       .toIndexedSeq
 
   val fold = IndexedSeq(List(D, D), List(C, B), List(B, A), List(A, C))
-  val initialBiggerRooms = initialRooms.zip(fold).map {
-    case (r, f) =>
-      val newPods = r.pods.head :: f ++ r.pods.tail
-      r.copy(pods = newPods, capacity = newPods.length)
+  val initialBiggerRooms = initialRooms.zip(fold).map { case (r, f) =>
+    val newPods = r.pods.head :: f ++ r.pods.tail
+    r.copy(pods = newPods, capacity = newPods.length)
   }
 
   implicit class Hallway(value: IndexedSeq[Option[Amphipod]]) {
@@ -39,7 +46,8 @@ object Day23 extends Day(23) {
 
   case class Room(index: Int, pods: List[Amphipod], capacity: Int) {
     def pop: Room = this.copy(pods = pods.tail)
-    def add(pod: Amphipod): Room = if (isFor(pod)) this.copy(pods = pod :: pods) else this
+    def add(pod: Amphipod): Room =
+      if (isFor(pod)) this.copy(pods = pod :: pods) else this
 
     def topPodCanMove: Boolean = pods.exists(!isFor(_))
 
@@ -70,15 +78,15 @@ object Day23 extends Day(23) {
   }
 
   case class State(
-    cost: Long,
-    hallway: IndexedSeq[Option[Amphipod]],
-    rooms: IndexedSeq[Room],
+      cost: Long,
+      hallway: IndexedSeq[Option[Amphipod]],
+      rooms: IndexedSeq[Room]
   ) {
     lazy val innerState = (hallway, rooms)
     override def hashCode(): Int = innerState.hashCode()
     override def equals(other: Any): Boolean = other match {
       case s: State => innerState.equals(s.innerState)
-      case _ => false
+      case _        => false
     }
 
     lazy val zippedHallway = hallway.zipWithIndex
@@ -89,7 +97,8 @@ object Day23 extends Day(23) {
 
     lazy val roomsWithPodsToMove = rooms.filter(_.topPodCanMove)
     lazy val roomToRoom = roomsWithPodsToMove.filter { room =>
-      availableRooms.exists(_.isFor(room.pods.head)) && hallway.betweenRoomsClear(room.index, room.pods.head.room)
+      availableRooms.exists(_.isFor(room.pods.head)) && hallway
+        .betweenRoomsClear(room.index, room.pods.head.room)
     }
     lazy val hallwayToRoom = for {
       (maybePod, hallwayIndex) <- zippedHallway
@@ -100,11 +109,14 @@ object Day23 extends Day(23) {
 
     def moves: List[State] = {
       val hallwayToRoomMoves = hallwayToRoom.map { case (pod, hallwayIndex) =>
-          State(
-            cost + (pod.moveCost * rooms(pod.room).distanceFromHallwaySpot(hallwayIndex)),
-            zippedHallway.map { case (p, i) => if (i == hallwayIndex) None else p },
-            rooms.map(_.add(pod)),
-          )
+        State(
+          cost + (pod.moveCost * rooms(pod.room)
+            .distanceFromHallwaySpot(hallwayIndex)),
+          zippedHallway.map { case (p, i) =>
+            if (i == hallwayIndex) None else p
+          },
+          rooms.map(_.add(pod))
+        )
       }
 
       val roomToRoomMoves = roomToRoom.map { room =>
@@ -113,7 +125,7 @@ object Day23 extends Day(23) {
         State(
           cost + (pod.moveCost * room.distanceToRoom(toRoom)),
           hallway,
-          rooms.map(r => if (room == r) r.pop else r.add(pod)),
+          rooms.map(r => if (room == r) r.pop else r.add(pod))
         )
       }
 
@@ -121,23 +133,30 @@ object Day23 extends Day(23) {
         roomsWithPodsToMove.flatMap { room =>
           val pod = room.pods.head
           zippedHallway.collect {
-            case (None, hallwayIndex) if hallway.roomToHallwayClear(hallwayIndex, room.index) =>
+            case (None, hallwayIndex)
+                if hallway.roomToHallwayClear(hallwayIndex, room.index) =>
               State(
-                cost + (pod.moveCost * room.distanceToHallwaySpot(hallwayIndex)),
-                zippedHallway.map { case (p, i) => if (i == hallwayIndex) Some(pod) else p },
-                rooms.map(r => if (room == r) room.pop else r),
+                cost + (pod.moveCost * room.distanceToHallwaySpot(
+                  hallwayIndex
+                )),
+                zippedHallway.map { case (p, i) =>
+                  if (i == hallwayIndex) Some(pod) else p
+                },
+                rooms.map(r => if (room == r) room.pop else r)
               )
+          }
         }
-      }
-      
+
       roomToRoomMoves.toList ++ hallwayToRoomMoves.toList ++ roomToHallwayMoves.toList
     }
   }
 
-  implicit val ordering: Ordering[State] = Ordering.by[State, Long](_.cost).reverse
+  implicit val ordering: Ordering[State] =
+    Ordering.by[State, Long](_.cost).reverse
 
   def solve(rooms: IndexedSeq[Room]): String = {
-    val stateQueue = mutable.PriorityQueue[State](State(0, initialHallway, rooms))
+    val stateQueue =
+      mutable.PriorityQueue[State](State(0, initialHallway, rooms))
     val seen = mutable.Set.empty[State]
 
     def loop(): Long = {

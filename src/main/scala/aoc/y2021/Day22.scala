@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day22 extends Day(22) {
+object Day22 extends Day(22, 2021) {
   implicit class RichRange(r: Range) {
     def overlap(other: Range): Option[Range] =
       if (other.start < r.start) other.overlap(r)
@@ -21,23 +22,30 @@ object Day22 extends Day(22) {
         zi <- z.overlap(other.z)
       } yield Cuboid(xi, yi, zi)
 
-    
     def +(other: Cuboid): List[Cuboid] = intersect(other) match {
       case None => this :: other :: Nil
       case Some(value) =>
         value :: (this - value) ++ (other - value)
     }
     def -(other: Cuboid): List[Cuboid] = intersect(other) match {
-      case None => this :: Nil
+      case None          => this :: Nil
       case Some(removed) =>
         // prisms from x.start until removed.x.start in the X direction
         // and from removed.x.end to x.end
         // includes full y and z
-        val xs = this.copy(x = x.start to (removed.x.start - 1)) :: this.copy(x = (removed.x.end + 1) to x.end) :: Nil
+        val xs = this.copy(x = x.start to (removed.x.start - 1)) :: this
+          .copy(x = (removed.x.end + 1) to x.end) :: Nil
         // prisms not including xs starting going in the y direction includes full z
-        val ys = Cuboid(removed.x, y.start to (removed.y.start - 1), z) :: Cuboid(removed.x, (removed.y.end + 1) to y.end, z) :: Nil
+        val ys = Cuboid(
+          removed.x,
+          y.start to (removed.y.start - 1),
+          z
+        ) :: Cuboid(removed.x, (removed.y.end + 1) to y.end, z) :: Nil
         // leftover z
-        val zs = removed.copy(z = z.start to (removed.z.start - 1)) :: removed.copy(z = (removed.z.end + 1) to z.end) :: Nil
+        val zs =
+          removed.copy(z = z.start to (removed.z.start - 1)) :: removed.copy(z =
+            (removed.z.end + 1) to z.end
+          ) :: Nil
         (xs ++ ys ++ zs).filter(_.nonEmpty)
     }
   }
@@ -46,7 +54,7 @@ object Day22 extends Day(22) {
     def cuboid: Cuboid
     def apply(state: List[Cuboid]): List[Cuboid]
   }
-  case class On(cuboid: Cuboid) extends Instruction{
+  case class On(cuboid: Cuboid) extends Instruction {
     def apply(state: List[Cuboid]): List[Cuboid] = {
       def loop(cuboids: List[Cuboid], toMerge: List[Cuboid]): List[Cuboid] =
         toMerge match {
@@ -63,18 +71,21 @@ object Day22 extends Day(22) {
       loop(state, cuboid :: Nil)
     }
   }
-  case class Off(cuboid: Cuboid) extends Instruction{
-    override def apply(state: List[Cuboid]): List[Cuboid] = state.flatMap(_ - cuboid)
+  case class Off(cuboid: Cuboid) extends Instruction {
+    override def apply(state: List[Cuboid]): List[Cuboid] =
+      state.flatMap(_ - cuboid)
   }
-
 
   val instructions = input.map { line =>
     val (on, xyz) = line.split(" ").toList match {
-      case "on" :: xyz :: Nil => true -> xyz
+      case "on" :: xyz :: Nil  => true -> xyz
       case "off" :: xyz :: Nil => false -> xyz
-      case _ => sys.error(s"bad line: $line")
+      case _                   => sys.error(s"bad line: $line")
     }
-    xyz.split(",").map(_.drop(2).split("\\.\\.").map(_.toInt).toList).toList match {
+    xyz
+      .split(",")
+      .map(_.drop(2).split("\\.\\.").map(_.toInt).toList)
+      .toList match {
       case (x1 :: x2 :: Nil) :: (y1 :: y2 :: Nil) :: (z1 :: z2 :: Nil) :: Nil =>
         val cuboid = Cuboid(x1 to x2, y1 to y2, z1 to z2)
         if (on) On(cuboid) else Off(cuboid)
@@ -84,13 +95,18 @@ object Day22 extends Day(22) {
 
   val start = instructions.take(1).map(_.cuboid)
 
-  lazy val finalCuboids = instructions.tail.zipWithIndex.foldLeft(start) { case (acc, (instruction, i)) =>
-    println(s"Step $i / ${instructions.length - 1}. Cuboid list currently at ${acc.length}")
-    instruction(acc)
+  lazy val finalCuboids = instructions.tail.zipWithIndex.foldLeft(start) {
+    case (acc, (instruction, i)) =>
+      println(
+        s"Step $i / ${instructions.length - 1}. Cuboid list currently at ${acc.length}"
+      )
+      instruction(acc)
   }
   lazy val finalSum = finalCuboids.map(_.size).sum
 
   override def partOne(): String =
-    (finalSum - Off(Cuboid(-50 to 50, -50 to 50, -50 to 50))(finalCuboids).map(_.size).sum).toString
+    (finalSum - Off(Cuboid(-50 to 50, -50 to 50, -50 to 50))(finalCuboids)
+      .map(_.size)
+      .sum).toString
   override def partTwo(): String = finalSum.toString
 }

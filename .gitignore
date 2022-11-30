@@ -1,2 +1,2 @@
 target
-src/main/resources/day*
+src/main/resources/*/day*

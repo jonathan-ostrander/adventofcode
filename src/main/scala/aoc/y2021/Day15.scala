@@ -1,8 +1,9 @@
 package aoc
+package y2021
 
 import scala.collection.mutable
 
-object Day15 extends Day(15) {
+object Day15 extends Day(15, 2021) {
   val smallGrid = input.zipWithIndex.flatMap { case (line, x) =>
     line.zipWithIndex.map { case (c, y) => (x, y) -> c.toString.toInt }
   }.toMap

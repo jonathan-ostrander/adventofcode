@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day16 extends Day(16) {
+object Day16 extends Day(16, 2021) {
   implicit class BinaryString(value: String) {
     def fromBinary: BigInt = BigInt(value, 2)
     def hexToBinary: String = {

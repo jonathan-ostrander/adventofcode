@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day05 extends Day(5) {
+object Day05 extends Day(5, 2021) {
   def genPoints(from: Int, to: Int, diff: Int): List[Int] =
     if (from == to) List.fill(diff.abs.toInt + 1)(from)
     else if (from > to) (from to to by -1).toList

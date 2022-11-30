@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day01 extends Day(1) {
+object Day01 extends Day(1, 2021) {
   val ints = input.map(_.toInt)
 
   def slidingIncrease(windowSize: Int): Int =

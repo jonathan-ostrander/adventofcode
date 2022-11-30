@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day09 extends Day(9) {
+object Day09 extends Day(9, 2021) {
   val map = input.zipWithIndex.flatMap { case (line, x) =>
     line.zipWithIndex.map { case (c, y) =>
       (x, y) -> c.toString.toInt

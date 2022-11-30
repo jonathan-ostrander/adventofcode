@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day06 extends Day(6) {
+object Day06 extends Day(6, 2021) {
   val initialFish =
     input.head
       .split(",")

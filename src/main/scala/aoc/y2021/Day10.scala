@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day10 extends Day(10) {
+object Day10 extends Day(10, 2021) {
   val pairs = Map(
     ')' -> ('(', 3L, 1L),
     ']' -> ('[', 57L, 2L),

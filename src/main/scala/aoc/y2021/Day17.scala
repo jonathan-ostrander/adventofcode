@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day17 extends Day(17) {
+object Day17 extends Day(17, 2021) {
   val t = raw"target area: x=(\-?\d+)..(\-?\d+), y=(\-?\d+)..(\-?\d+)".r
   val target: ((Int, Int), (Int, Int)) =
     input.head match {

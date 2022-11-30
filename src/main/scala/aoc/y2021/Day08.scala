@@ -1,8 +1,9 @@
 package aoc
+package y2021
 
 /** 0 1 2 3 4 5 6
   */
-object Day08 extends Day(8) {
+object Day08 extends Day(8, 2021) {
   val splitInput = input.map { line =>
     (
       line.takeWhile(_ != '|').trim.split(" ").toList.map(_.toSet),
