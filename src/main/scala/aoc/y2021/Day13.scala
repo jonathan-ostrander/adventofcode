@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day13 extends Day(13) {
+object Day13 extends Day(13, 2021) {
   val points =
     input.takeWhile(!_.isEmpty).map(_.split(",").map(_.toInt).toList).collect {
       case x :: y :: Nil => x -> y

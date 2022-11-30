@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day07 extends Day(7) {
+object Day07 extends Day(7, 2021) {
   val crabs = input.head.split(",").map(_.toInt).toList
 
   sealed trait FuelConsumption {

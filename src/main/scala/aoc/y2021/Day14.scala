@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day14 extends Day(14) {
+object Day14 extends Day(14, 2021) {
   val template = input.head.sliding(2).toList.groupBy(identity).transform {
     case (_, v) => v.length.toLong
   }

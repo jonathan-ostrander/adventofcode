@@ -7,11 +7,12 @@ import scala.util.Try
 
 object DayRunner extends App {
   val day = Try(args(0)).toOption.getOrElse(Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString)
+  val year = Try(args(1)).toOption.getOrElse(Calendar.getInstance().get(Calendar.YEAR).toString)
   val rm = universe.runtimeMirror(getClass.getClassLoader)
   val objectName = if (day.toInt < 10) s"Day0$day" else s"Day$day"
   
   val dayObject: Day =
-    rm.reflectModule(rm.staticModule(s"aoc.$objectName").asModule).instance.asInstanceOf[aoc.Day]
+    rm.reflectModule(rm.staticModule(s"aoc.y$year.$objectName").asModule).instance.asInstanceOf[aoc.Day]
 
   def time(f: => Unit): Unit = {
     val start = Instant.now
@@ -19,6 +20,7 @@ object DayRunner extends App {
     println(s"Took: ${Instant.now.toEpochMilli() - start.toEpochMilli()} ms")
   }
 
+  val _unused = dayObject.input
   time(println(s"Part 1: ${dayObject.partOne()}"))
   time(println(s"Part 2: ${dayObject.partTwo()}"))
 }

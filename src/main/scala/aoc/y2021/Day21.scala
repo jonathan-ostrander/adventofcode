@@ -1,13 +1,15 @@
 package aoc
+package y2021
 
 import java.util.concurrent.atomic.AtomicLong
 import scala.collection.mutable
 
-object Day21 extends Day(21) {
-  val startingPlayers = input.map(_.drop(28).toInt -> 0).map(t => Player(t._1, t._2)) match {
-    case first :: second :: Nil => first -> second
-    case _ => sys.error("bad input")
-  }
+object Day21 extends Day(21, 2021) {
+  val startingPlayers =
+    input.map(_.drop(28).toInt -> 0).map(t => Player(t._1, t._2)) match {
+      case first :: second :: Nil => first -> second
+      case _                      => sys.error("bad input")
+    }
 
   case class Player(position: Int, score: Int) {
     def go(roll: Int): Player = {
@@ -36,27 +38,41 @@ object Day21 extends Day(21) {
     val possibleDiceRolls = for {
       i <- (1 to 3); j <- (1 to 3); k <- (1 to 3)
     } yield i + j + k
-    val rollDistribution = possibleDiceRolls.groupBy(identity).transform { case (_, l) => l.length }.toList
+    val rollDistribution = possibleDiceRolls
+      .groupBy(identity)
+      .transform { case (_, l) => l.length }
+      .toList
 
-    def winDistribution(state: mutable.Map[(Player, Player), AtomicLong], soFar: (Long, Long)): Long =
+    def winDistribution(
+        state: mutable.Map[(Player, Player), AtomicLong],
+        soFar: (Long, Long)
+    ): Long =
       if (state.isEmpty) soFar._1 max soFar._2
       else {
         val wins = new AtomicLong(soFar._1)
         val stateMap = mutable.Map.empty[(Player, Player), AtomicLong]
 
-        rollDistribution.foreach {
-          case (roll, numRolls) => state.foreach {
-            case ((player, otherPlayer), quant) =>
-              val newPlayer = player.go(roll)
-              val longRef =
-                if (newPlayer.score >= 21) wins
-                else stateMap.getOrElseUpdate((otherPlayer, newPlayer), new AtomicLong(0L))
-              longRef.addAndGet(numRolls * quant.get())
+        rollDistribution.foreach { case (roll, numRolls) =>
+          state.foreach { case ((player, otherPlayer), quant) =>
+            val newPlayer = player.go(roll)
+            val longRef =
+              if (newPlayer.score >= 21) wins
+              else
+                stateMap.getOrElseUpdate(
+                  (otherPlayer, newPlayer),
+                  new AtomicLong(0L)
+                )
+            longRef.addAndGet(numRolls * quant.get())
           }
         }
 
         winDistribution(stateMap, (soFar._2, wins.get))
       }
-    winDistribution(mutable.Map((startingPlayers._1, startingPlayers._2) -> new AtomicLong(1L)), (0, 0)).toString
+    winDistribution(
+      mutable.Map(
+        (startingPlayers._1, startingPlayers._2) -> new AtomicLong(1L)
+      ),
+      (0, 0)
+    ).toString
   }
 }

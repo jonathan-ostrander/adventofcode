@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day12 extends Day(12) {
+object Day12 extends Day(12, 2021) {
   val graph: Map[String, List[String]] =
     input
       .map(_.split("-").toList.take(2))

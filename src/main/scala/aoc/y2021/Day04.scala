@@ -1,6 +1,7 @@
 package aoc
+package y2021
 
-object Day04 extends Day(4) {
+object Day04 extends Day(4, 2021) {
   case class Board(rows: List[Set[Int]], columns: List[Set[Int]]) {
     def all = rows ++ columns
 
