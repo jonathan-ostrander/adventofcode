@@ -12,8 +12,8 @@ abstract class Day(day: Int, year: Int) {
     } catch {
       case _: java.io.FileNotFoundException =>
         val session = sys.env.getOrElse("AOC_SESSION", sys.error("No session cookie set."))
-        s"curl https://adventofcode.com/$year/day/$day/input -H 'cookie: session=$session' -o src/main/resources/$fileName".!
-        input
+        s"curl -s https://adventofcode.com/$year/day/$day/input -H 'cookie: session=$session' -o src/main/resources/$fileName".!
+        Source.fromResource(fileName).getLines.toList
     }
 
   def partOne(): String
